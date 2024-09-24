@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List Project</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Todo List</h1>
+    <br />
+    <form>
+      <div>
+        <input
+          type="text"
+          name="inputValue"
+          id="inputValue"
+          autocomplete="off"
+        />
+        <button class="btn">Add Todo</button>
+      </div>
+      <section class="todo-lists-elem"></section>
+    </form>
+
+    <script>
+      let mainTodoElem = document.querySelector(".todo-lists-elem");
+      let inputValue = document.getElementById("inputValue");
+
+      //3rd Step - Getting data from localStorage.
+      const getTodoListFromLocal = () => {
+        return JSON.parse(localStorage.getItem("youtubeTodoList"));
+      };
+
+      let localTodoLists = getTodoListFromLocal() || [];
+
+      //2nd Step Creating Dynamic list element and button
+      const addTodoDynamicElement = (curElem) => {
+        const divElement = document.createElement("div");
+        divElement.classList.add("main_todo_div");
+        divElement.innerHTML = `<li> ${curElem} </li>
+        <button class="deleteBtn">Delete</button>`;
+        mainTodoElem.append(divElement);
+      };
+
+      //1st Step
+      const addTodoList = (e) => {
+        e.preventDefault();
+
+        const todoListValues = inputValue.value.trim();
+
+        inputValue.value = "";
+
+        if (todoListValues != "" && !localTodoLists.includes(todoListValues)) {
+          localTodoLists.push(todoListValues);
+          localTodoLists = [...new Set(localTodoLists)];
+          localStorage.setItem(
+            "youtubeTodoList",
+            JSON.stringify(localTodoLists)
+          );
+
+          addTodoDynamicElement(todoListValues);
+          console.log(localTodoLists);
+        }
+      };
+
+      ////6th Step - Update localStorage After removing list item updating localStorage.
+      const updateTodoListLocalStorage = (localTodoLists) => {
+        return localStorage.setItem(
+          "youtubeTodoList",
+          JSON.stringify(localTodoLists)
+        );
+      };
+
+      //5th Step - Remove Todo
+      const removeTodoElem = (e) => {
+        const todoToRemove = e.target;
+        let todoListContentToRemove =
+          todoToRemove.previousElementSibling.innerText;
+        let parentElem = todoToRemove.parentElement;
+
+        localTodoLists = localTodoLists.filter((curTodo) => {
+          return curTodo !== todoListContentToRemove;
+        });
+
+        //6th Step - Update localStorage
+        updateTodoListLocalStorage(localTodoLists);
+        parentElem.remove();
+        console.log(localTodoLists);
+      };
+
+      //4th Step - Show Todos
+      const showTodoList = () => {
+        console.log(localTodoLists);
+
+        localTodoLists.forEach((curElem) => {
+          addTodoDynamicElement(curElem);
+        });
+      };
+
+      showTodoList();
+
+      //5th Step - Remove Todo
+      mainTodoElem.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (e.target.classList.contains("deleteBtn")) {
+          removeTodoElem(e);
+        }
+      });
+
+      document.querySelector(".btn").addEventListener("click", (e) => {
+        addTodoList(e);
+      });
+    </script>
+  </body>
+</html>
